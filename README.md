@@ -1,4 +1,6 @@
-This repo is intended as a flexible numerical test for iree_linalg_ext, including its masking features.
+#HI!
+
+This repo is intended as a flexible numerical test for `iree_linalg_ext.attention`, including its masking features.
 
 To run the test, first setup a virtual environment:
 
