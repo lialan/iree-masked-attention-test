@@ -38,7 +38,7 @@ def compare_npy_files(file1, file2):
 
 if __name__ == "__main__":
     iree_dir = '../iree/'
-    python_file_1 = 'test.py'
+    python_file_1 = 'generate_npys.py'
     python_file_2 = 'generate_mlir.py'
     bash_command_1 = f'{iree_dir}build/tools/iree-compile test_attn.mlir --iree-hal-target-backends=rocm --iree-hip-target=gfx1100 --iree-global-opt-propagate-transposes=true --iree-opt-outer-dim-concat=true --iree-opt-const-eval=false --iree-opt-data-tiling=false --iree-hip-waves-per-eu=2 --iree-vm-target-truncate-unsupported-floats --iree-codegen-llvmgpu-use-vector-distribution --iree-codegen-gpu-native-math-precision=true -o fused_attn.vmfb'
     bash_command_2 = f'{iree_dir}build/tools/iree-run-module --module=fused_attn.vmfb --device=hip --input=@npys/attn_q.npy --input=@npys/attn_k.npy --input=@npys/attn_v.npy --input=@npys/attn_mask.npy --output=@npys/attn_out.npy'
