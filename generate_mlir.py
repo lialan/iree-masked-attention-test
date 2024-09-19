@@ -30,13 +30,12 @@ def generate_test_mlir(query: np.ndarray, key: np.ndarray, value: np.ndarray, ou
     query_type_arg = tensor_shape_and_type(query)
     key_type_arg = tensor_shape_and_type(key)
     value_type_arg = tensor_shape_and_type(value)
-    mask_type_arg = tensor_shape_and_type(mask)
+    mask_type_arg = tensor_shape_and_type(mask) if mask is not None else ""
     output_type_arg = tensor_shape_and_type(output)
     mask_arg = f", %m : {mask_type_arg}" if mask is not None else ""
     scale_value = 1 / math.sqrt(key.shape[-1])
     
-    mlir = f'''
-func.func @main(%q : {query_type_arg}, %k : {key_type_arg}, %v : {value_type_arg}{mask_arg}) -> {output_type_arg} {{
+    mlir = f'''func.func @main(%q : {query_type_arg}, %k : {key_type_arg}, %v : {value_type_arg}{mask_arg}) -> {output_type_arg} {{
     %cst = arith.constant {scale_value:.6e} : f16
     %o = tensor.empty() : {output_type_arg}
     %r = iree_linalg_ext.attention {{
@@ -48,12 +47,12 @@ func.func @main(%q : {query_type_arg}, %k : {key_type_arg}, %v : {value_type_arg
         {'affine_map<(d0, d1, d2, d3, d4, d5) -> (d0, d1, d2, d4)>,' if mask is not None else ''}
         affine_map<(d0, d1, d2, d3, d4, d5) -> (d0, d1, d2, d5)>
         ]}}
-        ins(%q, %k, %v, %cst, %m: {query_type_arg}, {key_type_arg}, {value_type_arg}, f16{(', ' + mask_type_arg) if mask is not None else ""}) outs(%o : {output_type_arg}) -> {output_type_arg}
+        ins(%q, %k, %v, %cst{', %m' if mask is not None else ''}: {query_type_arg}, {key_type_arg}, {value_type_arg}, f16{(', ' + mask_type_arg) if mask is not None else ""}) outs(%o : {output_type_arg}) -> {output_type_arg}
     return %r : {output_type_arg}
-}}
-    '''
+    }}'''
     
     return mlir
+
 
 
 with open('test_attn.mlir', 'w') as file:
@@ -67,3 +66,4 @@ with open('test_attn.mlir', 'w') as file:
         pass
     output = np.load('npys/attn_ref.npy')
     file.write(generate_test_mlir(query, key, value, output, mask=mask))
+    file.close()
