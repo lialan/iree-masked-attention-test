@@ -23,4 +23,4 @@ This script:
 - Runs this VMFB file via `iree-run-module`
 - Compares the "golden-value" tensor (created through `torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=mask)`) and the MLIR-generated output tensor.
 
-To change the specific contents and shapes for the query, key, value, mask, and output tensors, modify `generate_npys.py`. To specify the your IREE build directory, modify `iree_dir` within `run_test.py`.
+**To change the specific contents and shapes for the query, key, value, mask, and output tensors, modify `generate_npys.py`. To specify the your IREE build directory, modify `iree_dir` within `run_test.py`.**
