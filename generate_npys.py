@@ -16,9 +16,9 @@ if __name__ == "__main__":
     np.save("npys/attn_q.npy", q.detach().to(dtype=torch.float16, device="cpu").numpy())
     np.save("npys/attn_k.npy", k.detach().to(dtype=torch.float16, device="cpu").numpy())
     np.save("npys/attn_v.npy", v.detach().to(dtype=torch.float16, device="cpu").numpy())
-    # np.save("npys/attn_mask.npy", mask.detach().to(dtype=torch.float16, device="cpu").numpy())
+    np.save("npys/attn_mask.npy", mask.detach().to(dtype=torch.bool, device="cpu").numpy())
     ## ^ Comment out to exclude mask
 
     # Post attention func
-    out = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None) # Or attn_mask=None
+    out = torch.nn.functional.scaled_dot_product_attention(q, k, v, mask) # Or attn_mask=None
     np.save("npys/attn_ref.npy", out.detach().to(device="cpu").numpy())

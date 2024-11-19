@@ -39,7 +39,7 @@ def compare_npy_files(file1, file2):
         print(f"Error comparing files '{file1}' and '{file2}': {e}")
 
 if __name__ == "__main__":
-    iree_dir = '../iree/'
+    iree_dir = '../'
     python_file_1 = 'generate_npys.py'
     python_file_2 = 'generate_mlir.py'
     npy_file_1 = 'npys/attn_out.npy'
@@ -51,8 +51,8 @@ if __name__ == "__main__":
     run_python_file(python_file_1)
     run_python_file(python_file_2)
 
-    bash_command_1 = f'{iree_dir}build/tools/iree-compile test_attn.mlir --iree-hal-target-backends=rocm --iree-hip-target=gfx1100 --iree-global-opt-propagate-transposes=true --iree-opt-outer-dim-concat=true --iree-opt-const-eval=false --iree-opt-data-tiling=false --iree-hip-waves-per-eu=2 --iree-vm-target-truncate-unsupported-floats --iree-codegen-llvmgpu-use-vector-distribution --iree-codegen-gpu-native-math-precision=true -o fused_attn.vmfb'
-    bash_command_2 = f"{iree_dir}build/tools/iree-run-module --module=fused_attn.vmfb --device=hip --input=@npys/attn_q.npy --input=@npys/attn_k.npy --input=@npys/attn_v.npy {'--input=@npys/attn_mask.npy ' if os.path.exists('npys/attn_mask.npy') else ''}--output=@npys/attn_out.npy"
+    bash_command_1 = f'{iree_dir}build/tools/iree-compile test_attn.mlir --iree-hal-target-backends=llvm-cpu --iree-llvmcpu-target-cpu=generic --iree-global-opt-propagate-transposes=true --iree-opt-outer-dim-concat=true --iree-opt-const-eval=false --iree-opt-data-tiling=false --iree-vm-target-truncate-unsupported-floats -o fused_attn.vmfb'
+    bash_command_2 = f"{iree_dir}build/tools/iree-run-module --module=fused_attn.vmfb --input=@npys/attn_q.npy --input=@npys/attn_k.npy --input=@npys/attn_v.npy {'--input=@npys/attn_mask.npy ' if os.path.exists('npys/attn_mask.npy') else ''}--output=@npys/attn_out.npy"
     run_bash_command(bash_command_1)
     run_bash_command(bash_command_2)
     compare_npy_files(npy_file_1, npy_file_2)
