@@ -45,7 +45,7 @@ if __name__ == "__main__":
     npy_file_1 = 'npys/attn_out.npy'
     npy_file_2 = 'npys/attn_ref.npy'
 
-    run_bash_command('rm -rf npys')
+    run_bash_command('rm -rf npys test_attn.mlir')
     run_bash_command('rm -rf fused_attn.vmfb')
     run_bash_command('mkdir npys')
     run_python_file(python_file_1)
