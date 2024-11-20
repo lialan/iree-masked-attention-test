@@ -44,15 +44,22 @@ if __name__ == "__main__":
     python_file_2 = 'generate_mlir.py'
     npy_file_1 = 'npys/attn_out.npy'
     npy_file_2 = 'npys/attn_ref.npy'
+    npy_file_3 = 'npys/attn_out_ones.npy'
+    npy_file_4 = 'npys/attn_ref_ones.npy'
 
     run_bash_command('rm -rf npys test_attn.mlir')
-    run_bash_command('rm -rf fused_attn.vmfb')
+    run_bash_command('rm -rf fused_attn.vmfb npys/attn_out.npy')
     run_bash_command('mkdir npys')
     run_python_file(python_file_1)
     run_python_file(python_file_2)
 
     bash_command_1 = f'{iree_dir}build/tools/iree-compile test_attn.mlir --iree-experimental-packed-i1-storage --iree-hal-target-backends=llvm-cpu --iree-llvmcpu-target-cpu=generic --iree-global-opt-propagate-transposes=true --iree-opt-outer-dim-concat=true --iree-opt-const-eval=false --iree-opt-data-tiling=false --iree-vm-target-truncate-unsupported-floats -o fused_attn.vmfb'
     bash_command_2 = f"{iree_dir}build/tools/iree-run-module --module=fused_attn.vmfb --input=@npys/attn_q.npy --input=@npys/attn_k.npy --input=@npys/attn_v.npy {'--input=@npys/attn_mask.npy ' if os.path.exists('npys/attn_mask.npy') else ''}--output=@npys/attn_out.npy"
+    bash_command_3 = f"{iree_dir}build/tools/iree-run-module --module=fused_attn.vmfb --input=@npys/attn_q.npy --input=@npys/attn_k.npy --input=@npys/attn_v.npy {'--input=@npys/attn_mask_ones.npy ' if os.path.exists('npys/attn_mask.npy') else ''}--output=@npys/attn_out_ones.npy"
     run_bash_command(bash_command_1)
     run_bash_command(bash_command_2)
+    run_bash_command(bash_command_3)
+    print("====== mask vs ref=====")
     compare_npy_files(npy_file_1, npy_file_2)
+    print("====== no mask vs no mask ref=====")
+    compare_npy_files(npy_file_3, npy_file_4)

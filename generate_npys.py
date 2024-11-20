@@ -15,17 +15,29 @@ if __name__ == "__main__":
     k = (torch.rand(b0,b1,k2,n).to(torch.float32) - 0.5) * scale
     v = (torch.rand(b0,b1,k2,n).to(torch.float32) - 0.5) * scale
     mask = (torch.rand(b0,b1,m,k2) > 0.5)
-    #mask = (torch.ones(b0,b1,m,k2))
+    ones_mask = (torch.ones(b0,b1,m,k2))
     #mask = torch.tril(mask, diagonal = 1)
     ref_mask = (mask.to(torch.float32))
+    print("ref_mask:")
+    print(ref_mask)
+    ref_one_mask = (ones_mask.to(torch.float32))
+    print("ref_one_mask:")
+    print(ref_one_mask)
 
     np.save("npys/attn_q.npy", q.detach().to(dtype=torch.float16, device="cpu").numpy())
     np.save("npys/attn_k.npy", k.detach().to(dtype=torch.float16, device="cpu").numpy())
     np.save("npys/attn_v.npy", v.detach().to(dtype=torch.float16, device="cpu").numpy())
     np.save("npys/attn_mask.npy", mask.detach().to(dtype=write_mask_type, device="cpu").numpy())
+    np.save("npys/attn_mask_ones.npy", ones_mask.detach().to(dtype=write_mask_type, device="cpu").numpy())
     ## ^ Comment out to exclude mask
 
     # Post attention func
     out = torch.nn.functional.scaled_dot_product_attention(q, k, v, ref_mask) # Or attn_mask=None
+    print("=== ref mask ==")
+    print(out)
+    out_ones = torch.nn.functional.scaled_dot_product_attention(q, k, v, ref_one_mask) # Or attn_mask=None
+    print("=== ref ones mask ==")
+    print(out_ones)
     #out = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None) # Or attn_mask=None
     np.save("npys/attn_ref.npy", out.detach().to(device="cpu").numpy())
+    np.save("npys/attn_ref_ones.npy", out_ones.detach().to(device="cpu").numpy())
