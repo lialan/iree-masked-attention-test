@@ -10,11 +10,14 @@ if __name__ == "__main__":
     b1 = 1
     mask_type = torch.bool
     write_mask_type = torch.bool
-    q = (torch.rand(b0,b1,m,n).to(torch.float32) - 0.5) * 1
-    k = (torch.rand(b0,b1,k2,n).to(torch.float32) - 0.5) * 1
-    v = (torch.rand(b0,b1,k2,n).to(torch.float32) - 0.5) * 1
-    mask = (torch.rand(b0,b1,m,k2).to(mask_type)) * 1
-    ref_mask = (mask.to(torch.float32)) * 1
+    scale = 10000
+    q = (torch.rand(b0,b1,m,n).to(torch.float32) - 0.5) * scale
+    k = (torch.rand(b0,b1,k2,n).to(torch.float32) - 0.5) * scale
+    v = (torch.rand(b0,b1,k2,n).to(torch.float32) - 0.5) * scale
+    mask = (torch.rand(b0,b1,m,k2) > 0.5)
+    #mask = (torch.ones(b0,b1,m,k2))
+    #mask = torch.tril(mask, diagonal = 1)
+    ref_mask = (mask.to(torch.float32))
 
     np.save("npys/attn_q.npy", q.detach().to(dtype=torch.float16, device="cpu").numpy())
     np.save("npys/attn_k.npy", k.detach().to(dtype=torch.float16, device="cpu").numpy())
